@@ -2,6 +2,8 @@ package com.example.journalapp.view.theme
 
 import androidx.compose.ui.graphics.Color
 
+//These colours are imported from the Materials 3 Theme Builder. Allows dynamic recolouring of the app.
+
 val primaryLight = Color(0xFF415F91)
 val onPrimaryLight = Color(0xFFFFFFFF)
 val primaryContainerLight = Color(0xFFD6E3FF)

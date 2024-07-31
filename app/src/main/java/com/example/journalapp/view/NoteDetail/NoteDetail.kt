@@ -44,7 +44,10 @@ import com.example.journalapp.view.theme.AppTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-//Composable for displaying Note Detail. Used in NotesList.kt
+//This NoteDetail.kt file is basically a detailed view for the note. When users click on the note in the
+// NoteListScreen (or main page), they are brought to the NoteDetailPage.
+
+//Composable for displaying Note Detail. //This shows the note details when user clicks on it.
 @Composable
 fun NoteDetailPage(noteId: Int, navController: NavController, viewModel: NotesViewModel) {
     val scope = rememberCoroutineScope() // Collect note details
@@ -61,12 +64,13 @@ fun NoteDetailPage(noteId: Int, navController: NavController, viewModel: NotesVi
     }
     //Main Theme
     AppTheme {
+        //Explained once: This surface on top of a scaffold is to allow easier customizability of the screens.
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
             Scaffold(
                 topBar = {
                     GenericAppBar(
                         title = "Details", //Title of screen
-                        //For navigation, using the nav_arrow, navIcon and onNavIconClick are related.
+                        //For navigation, using the nav_arrow to go back to the previous screen
                         navIcon = {
                             Icon(
                                 imageVector = ImageVector.vectorResource(id = R.drawable.nav_arrow),
@@ -74,6 +78,7 @@ fun NoteDetailPage(noteId: Int, navController: NavController, viewModel: NotesVi
                                 tint = MaterialTheme.colorScheme.onPrimary
                             )
                         },
+                        //Goes back to the previous screen
                         onBackIconClick = {
                             if (navController.currentBackStackEntry?.lifecycle?.currentState
                                 == Lifecycle.State.RESUMED
@@ -81,7 +86,7 @@ fun NoteDetailPage(noteId: Int, navController: NavController, viewModel: NotesVi
                                 navController.popBackStack()
                             }
                         },
-                        //For editing, using the edit icon, icon and onIconClick are related.
+                        //For editing, using the edit icon, to edit a note
                         icon = {
                             Icon(
                                 imageVector = ImageVector.vectorResource(id = R.drawable.edit),
@@ -89,6 +94,7 @@ fun NoteDetailPage(noteId: Int, navController: NavController, viewModel: NotesVi
                                 tint = MaterialTheme.colorScheme.onPrimary
                             )
                         },
+                        //Navigates you to the note edit page where you can edit the particular page
                         onIconClick = {
                             navController.navigate(Constants.noteEditNavigation(note.value.id ?: 0))
                         },
@@ -97,18 +103,23 @@ fun NoteDetailPage(noteId: Int, navController: NavController, viewModel: NotesVi
                     )
                 },
                 //Main Content of Note Detail Page
+                // This LazyColumn is done is different from CreateNoteScreen because it allows for more customizability for the UI
                 content = { innerPadding ->
+                    //The LazyColumn is similar to the RecyclerView in Android. It is more lightweight but provides the same functionality as
+                    //a RecyclerView
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(innerPadding),
                     ) {
                         item {
+                            //Displays the image to the user. If there is an image, display the image. If there is no image, display a placeholder text instead.
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(370.dp)
                             ) {
+                                //If there is an image, display the image
                                 if (note.value.imageUri != null && note.value.imageUri!!.isNotEmpty()) {
                                     Image(
                                         painter = rememberAsyncImagePainter(
@@ -122,8 +133,9 @@ fun NoteDetailPage(noteId: Int, navController: NavController, viewModel: NotesVi
                                         contentScale = ContentScale.Crop
                                     )
                                 } else {
+                                    //If there is no image, display an Image placeholder instead.
                                     Text(
-                                        text = "Image",
+                                        text = "Image Placeholder",
                                         modifier = Modifier.align(Alignment.Center),
                                         style = MaterialTheme.typography.headlineMedium,
                                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
@@ -131,6 +143,7 @@ fun NoteDetailPage(noteId: Int, navController: NavController, viewModel: NotesVi
                                 }
                             }
                         }
+                        //Displays the title of the note
                         item {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text(
@@ -140,12 +153,14 @@ fun NoteDetailPage(noteId: Int, navController: NavController, viewModel: NotesVi
                                     fontSize = 30.sp,
                                     fontWeight = FontWeight.Bold
                                 )
+                                //Displays a short note to allow users to remember what that note is for
                                 Text(
                                     text = note.value.note,
                                     modifier = Modifier
                                         .padding(top = 4.dp),
                                     fontSize = 20.sp
                                 )
+                                //Displays when the note was last modified
                                 Text(
                                     text = note.value.dateUpdated,
                                     modifier = Modifier
@@ -153,6 +168,7 @@ fun NoteDetailPage(noteId: Int, navController: NavController, viewModel: NotesVi
                                     fontSize = 15.sp,
                                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                                 )
+                                //A horizontal divider just to make it look pretty
                                 HorizontalDivider(
                                     modifier = Modifier.padding(
                                         start = 10.dp,
@@ -163,6 +179,7 @@ fun NoteDetailPage(noteId: Int, navController: NavController, viewModel: NotesVi
                             }
                         }
                         item {
+                            //Column for showing the other details such as Description, Time, Date, Location
                             Column(
                                 modifier = Modifier.padding(
                                     start = 20.dp,
@@ -170,67 +187,77 @@ fun NoteDetailPage(noteId: Int, navController: NavController, viewModel: NotesVi
                                     top = 10.dp,
                                 )
                             ) {
+                                //1) Description
+                                //Each of the element is displayed in a Row to make it look nice.
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(top = 10.dp)
                                 ) {
+                                    //Description label
                                     Text(
                                         text = "Description:",
                                         fontSize = 20.sp,
                                         modifier = Modifier.weight(1f)
                                     )
+                                    //Description actual value
                                     Text(
                                         text = note.value.description,
                                         fontSize = 20.sp,
                                         modifier = Modifier.weight(2f).padding(start = 10.dp)
                                     )
                                 }
-
+                                //2) Time
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(top = 10.dp)
                                 ) {
+                                    //Time label
                                     Text(
                                         text = "Time:",
                                         fontSize = 20.sp,
                                         modifier = Modifier.weight(1f)
                                     )
+                                    //Time actual value (the user chooses this)
                                     Text(
                                         text = note.value.time,
                                         fontSize = 20.sp,
                                         modifier = Modifier.weight(2f).padding(start = 10.dp)
                                     )
                                 }
-
+                                //3) Date
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(top = 10.dp)
                                 ) {
+                                    //Date label
                                     Text(
                                         text = "Date:",
                                         fontSize = 20.sp,
                                         modifier = Modifier.weight(1f)
                                     )
+                                    //Date actual value (the user chooses this)
                                     Text(
                                         text = note.value.date,
                                         fontSize = 20.sp,
                                         modifier = Modifier.weight(2f).padding(start = 10.dp)
                                     )
                                 }
-
+                                //4) Location
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(top = 10.dp, bottom = 10.dp)
                                 ) {
+                                    //Location label
                                     Text(
                                         text = "Location:",
                                         fontSize = 20.sp,
                                         modifier = Modifier.weight(1f)
                                     )
+                                    //Location actual value
                                     Text(
                                         text = note.value.location,
                                         fontSize = 20.sp,

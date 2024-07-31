@@ -1,6 +1,6 @@
 package com.example.journalapp.view.NotesList
 
-//Import list
+//Imports
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -9,6 +9,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -72,18 +73,19 @@ import coil.request.ImageRequest
 import com.example.journalapp.Constants
 import com.example.journalapp.R
 import com.example.journalapp.model.Note
+import com.example.journalapp.view.SharedComponents.NotesFab
 import com.example.journalapp.view.theme.AppTheme
 import com.example.journalapp.viewModel.NotesViewModel
 
-//Main page, main entry point for the app.
-//Main Composable. Shows the notes made by users. Connects all the different Composable to make the UI.
-@OptIn(ExperimentalMaterial3Api::class) //Experimental class because I used materials 3.
+//NoteListScreen is the screen that displays the journal entries (notes) in a list and acts as the main page.
+//When users start the app, the first composable they will see is this composable.
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NoteListScreen(
     navController: NavController,
     viewModel: NotesViewModel
 ) {
-    //Remember the mutable state of each variable to operate on them later on in different places. Crucial
+    //Variables
     val openDialog = remember { mutableStateOf(false) }
     val deleteText = remember { mutableStateOf("") }
     val noteQuery = remember { mutableStateOf("") }
@@ -91,20 +93,16 @@ fun NoteListScreen(
     val notes = viewModel.notes.observeAsState()
     val context = LocalContext.current
 
-    // State to track the visibility of the search bar
+    //Variables
     val isSearchBarVisible = remember { mutableStateOf(false) }
-    // State to track the visibility of the tooltip
     val toolTipShow = remember { mutableStateOf(false) }
 
-    //Content area
     AppTheme {
         Surface(modifier = Modifier.fillMaxSize()) {
             Scaffold(
-                //Top App Bar that has the search and delete buttons; Title as well
-                //Does not use the (GenericAppBar in Shared.kt) because I want to customize it.
                 topBar = {
+                    //Top app bar
                     CenterAlignedTopAppBar(
-                        //Colors for the Top App Bar
                         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                             containerColor = MaterialTheme.colorScheme.primary,
                             titleContentColor = MaterialTheme.colorScheme.onPrimary
@@ -118,7 +116,8 @@ fun NoteListScreen(
                                 fontWeight = FontWeight.Bold
                             )
                         },
-                        //Tool tip, when user's press on it, a tool tip is shown, does not navigate users anywhere.
+                        //Navigation icon. In this navigation icon, it is different from other screens because it displays a ToolsTip instead of
+                        // allowing users to navigate. This is done for the aesthetics of the app. It is just a design not a flaw in logic
                         navigationIcon = {
                             IconButton(onClick = {
                                 toolTipShow.value = !toolTipShow.value
@@ -130,30 +129,37 @@ fun NoteListScreen(
                                 )
                             }
                         },
-                        //The actions are Search and Delete All Notes
+                        //Actions. There are two actions here (Search and Delete)
+                        //1) Search: Allows users to query their journal entries (notes) based on keywords. It queries the notes based on their title,
+                        //note, description, time and date.
+                        //2) Allows users to quickly delete all notes, done for easier access and deletion of all notes instead of deleting all notes one by one.
+
+                        //1) Search (When users click on it, the search bar will appear, become visible.)
                         actions = {
-                            //Search and query notes
                             IconButton(onClick = {
                                 isSearchBarVisible.value = !isSearchBarVisible.value
                             }) {
+                                //Search Icon
                                 Icon(
                                     imageVector = ImageVector.vectorResource(id = R.drawable.search),
                                     contentDescription = "Search for notes",
                                     tint = MaterialTheme.colorScheme.onPrimary
                                 )
                             }
-                            //Delete all notes.
+                            //2) Delete all notes (When users click on it, they can delete all the notes in an instant after going through the confirmation process by
+                            // pressing confirm in the dialog box)
+                            // If there are notes, then show the dialog and once confirmed, empties the note list.
                             IconButton(onClick = {
                                 if (notes.value?.isNotEmpty() == true) {
                                     openDialog.value = true
                                     deleteText.value = "Are you sure you want to delete all notes?"
                                     notesToDelete.value = notes.value ?: emptyList()
-                                } else {
+                                } else { //If there are no notes, shows a toast message telling users that there are no notes to delete.
                                     Toast.makeText(context,
                                         "No notes to delete", Toast.LENGTH_SHORT).show()
                                 }
                             }) {
-                                //Delete icon
+                                //Icon
                                 Icon(
                                     imageVector = ImageVector.vectorResource(id = R.drawable.delete),
                                     contentDescription = "Delete all notes",
@@ -163,31 +169,30 @@ fun NoteListScreen(
                         }
                     )
                 },
-                //Floating action Bar to let users create the note, when pressed, brings you to the CreateNoteScreen
+                //The floating action bar allows users to create a note by pressing on the "+" icon which brings them to the CreateNoteScreen.kt
                 floatingActionButton = {
                     NotesFab(
                         contentDescription = "Create Note",
-                        action = { navController.navigate(Constants.NAVIGATION_NOTES_CREATE) },
+                        action = { navController.navigate(Constants.NAVIGATION_NOTES_CREATE) }, //Navigates them to the create screen
                         icon = R.drawable.add
                     )
                 }
             ) { paddingValues ->
-                //Displays the notes.
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues)
                 ) {
-                    //Search Bar, Hide and Show with some simple animations
+                    //Allows the search bar to be hidden when not in use.
                     AnimatedVisibility(
                         visible = isSearchBarVisible.value,
                         enter = fadeIn(),
                         exit = fadeOut()
                     ) {
-                        //Allows the search bar to filter notes based on what users have typed in the search
+                        //Searches the notes
                         SearchBar(query = noteQuery, isSearchBarVisible = isSearchBarVisible)
                     }
-                    //The notes items displayed
+                    //Displays the notes
                     notes.value?.let {
                         if (it.isNotEmpty()) {
                             NotesList(
@@ -201,7 +206,7 @@ fun NoteListScreen(
                         }
                     }
                 }
-                //Delete dialog shows the confirmation dialog when users want to delete notes. Prevents accidental deletions.
+                //Opens the delete dialog for each individual deletion of a note.
                 DeleteDialog(
                     openDialog = openDialog,
                     text = deleteText,
@@ -213,21 +218,23 @@ fun NoteListScreen(
                         notesToDelete.value = mutableListOf()
                     }
                 )
-                // Show Tool Tip when users click on the Info icon
+                //Shows the tooltip, if users press on the information icon (located at the top left of the TopAppBar)
                 ToolTip(toolTipShow)
             }
         }
     }
 }
 
-//Composable for Search Bar, allows users to search for notes based on:
-// title, note, description, location, date, and time
+//Search Bar Component
 @Composable
 fun SearchBar(query: MutableState<String>, isSearchBarVisible: MutableState<Boolean>) {
     Column(Modifier.padding()) {
         OutlinedTextField(
+            //Label for search bar
             label = { Text("Search...") },
+            //The things that users type into the search bar is the value which is a query.value value in this case
             value = query.value,
+            //Changes the value to what the users have types
             onValueChange = { query.value = it },
             modifier = Modifier
                 .fillMaxWidth()
@@ -239,16 +246,19 @@ fun SearchBar(query: MutableState<String>, isSearchBarVisible: MutableState<Bool
                     contentDescription = "Search Button"
                 )
             },
+            // Behaves differently when there is text and no text.
+            //1) When there is text in the search bar, clears it
+            //2) When there is no text in the search bar, hides the search bar
             trailingIcon = {
+                //Clears the search bar
                 IconButton(onClick = {
-                    //Clears the search bar if there is text in the search bar.
                     if (query.value.isNotEmpty()) {
                         query.value = ""
                     } else {
-                        //If there is nothing in the search bar, pressing on the "X" icon will close the search bar.
-                        isSearchBarVisible.value = false
+                        isSearchBarVisible.value = false //Hides the search bar
                     }
                 }) {
+                    //Icon is in the shape of an "x" to indicate clear.
                     Icon(
                         Icons.Default.Clear,
                         contentDescription = "Clear Search"
@@ -259,7 +269,7 @@ fun SearchBar(query: MutableState<String>, isSearchBarVisible: MutableState<Bool
     }
 }
 
-//Composable for Notes, the individual notes are combined into one body to be displayed.
+//Displays the notes, grouped NoteListItem
 @Composable
 fun NotesList(
     notes: List<Note>,
@@ -269,72 +279,72 @@ fun NotesList(
     navController: NavController,
     notesToDelete: MutableState<List<Note>>
 ) {
-    //Track the previous header, the header is the Date that is displayed on top of the notes (The date that the note is created or updated)
-    var previousHeader = ""
+    //Group the notes by day in Descending order
+    val groupedNotes = if (query.value.isEmpty()) {
+        notes.sortedByDescending { it.dateUpdated }.groupBy { it.getDay() }
+        //Query for the search
+    } else {
+        notes.filter { it.note.contains(query.value, true) ||
+                it.title.contains(query.value, true) ||
+                it.description.contains(query.value, true) ||
+                it.location.contains(query.value, true) ||
+                it.date.contains(query.value, true) ||
+                it.time.contains(query.value, true)
+        }.sortedByDescending { it.dateUpdated }.groupBy { it.getDay() }
+    }
+    //Displays the note. Notes are grouped by their days.
     LazyColumn(
         contentPadding = PaddingValues(12.dp),
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = Modifier.fillMaxSize()
     ) {
-        //Search for notes
-        val queriedNotes = if (query.value.isEmpty()) {
-            notes
-        } else {
-            //Filters the notes based on the query, if it has the properties, then the search will be displayed
-            //Properties: note, title, description, location, date, and time
-            notes.filter { it.note.contains(query.value, true) ||
-                        it.title.contains(query.value, true) ||
-                        it.description.contains(query.value, true)||
-                        it.location.contains(query.value, true)||
-                        it.date.contains(query.value, true) ||
-                        it.time.contains(query.value, true)
-            }
-        }
-        //Displays the journal notes that the user have made
-        itemsIndexed(queriedNotes) { _, note ->
-            //The logic is: If the note's date created is not the same as the Header's date, then that means
-            //it is a new day and a section for that date will be created for the note.
-            if (note.getDay() != previousHeader) {
+        //Logic for grouping notes based on the days
+        groupedNotes.forEach { (header, notesForHeader) ->
+            item {
                 Column(
                     modifier = Modifier
                         .padding(6.dp)
                         .fillMaxWidth()
                 ) {
-                    //Gets the day for the header
+                    //Header
                     Text(
-                        text = note.getDay(),
+                        text = header,
                         color = MaterialTheme.colorScheme.onPrimaryContainer,
                         fontWeight = FontWeight.Bold,
                     )
                 }
+                //Spacer just places a space between elements
                 Spacer(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(6.dp)
                 )
-                previousHeader = note.getDay()
-                HorizontalDivider(modifier = Modifier.padding(bottom = 10.dp),
-                    color = MaterialTheme.colorScheme.onPrimaryContainer)
+                //HorizontalDivider is for aesthetic purposes.
+                HorizontalDivider(
+                    modifier = Modifier.padding(bottom = 10.dp),
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
             }
-            //Displays the notes under the previousHeader element.
-            NoteListItem(
-                note,
-                openDialog,
-                deleteText = deleteText,
-                navController,
-                notesToDelete = notesToDelete,
-                noteBackground = MaterialTheme.colorScheme.primaryContainer
-            )
-            Spacer(modifier = Modifier
-                .fillMaxWidth()
-                .height(12.dp)
-            )
-
+            //Displays the notes
+            itemsIndexed(notesForHeader, key = { index, note -> note.id ?: index }) { index, note ->
+                NoteListItem(
+                    note = note,
+                    openDialog = openDialog,
+                    deleteText = deleteText,
+                    navController = navController,
+                    notesToDelete = notesToDelete,
+                    noteBackground = MaterialTheme.colorScheme.primaryContainer
+                )
+                Spacer(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(12.dp)
+                )
+            }
         }
     }
 }
 
-//Composable for each individual note. Separated to make it easier to understand for people.
+//This composable is for each individual notes, which is displayed in the NoteListScreen.kt
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun NoteListItem(
@@ -345,27 +355,25 @@ fun NoteListItem(
     noteBackground: Color,
     notesToDelete: MutableState<List<Note>>
 ) {
-    // State to manage the visibility of the additional information, when users click on the hamburger menu
+    //When users press on the hamburger menu, the list is expanded
     val isExpanded = remember { mutableStateOf(false) }
 
-    //Returns the notes in a Box container
-    return Box(modifier = Modifier.clip(RoundedCornerShape(12.dp))) {
-        //Creates a clickable note
+    //Displays the note
+    Box(modifier = Modifier.clip(RoundedCornerShape(12.dp))) {
         Column(
             modifier = Modifier
                 .background(noteBackground)
                 .fillMaxWidth()
-                //These 2 modifiers allow the list to take as much space as they need.
-                //Allows dynamic sizing according to what the user has entered.
-                .wrapContentWidth() // Let width be determined by content
-                .wrapContentHeight() // Let height be determined by content
+                //Allows the content to take as much width and height as they need
+                .wrapContentWidth() //Takes up as much width as it needs
+                .wrapContentHeight() //Takes up as much height as it needs
                 .padding(12.dp)
-
-                //Allows users to navigate or delete each individual note. A short click and a long click
+                //Allows users to do two different things in 2 different ways: 1) Short click = Navigate to the note 2) Long click = Delete note
                 .combinedClickable(
+                    //Interaction source is for the ripple effect
                     interactionSource = remember { MutableInteractionSource() },
                     indication = rememberRipple(bounded = false),
-                    //Press once to go the note (short click)
+                    //On short clicks, the users are redirected to the NoteDetails where they are shown the note's details in more detail.
                     onClick = {
                         if (note.id != 0) {
                             navController.navigate(
@@ -373,7 +381,7 @@ fun NoteListItem(
                             )
                         }
                     },
-                    //Press on the note for a long time to delete that individual note.
+                    //On long clicks, the users can delete the individual notes they want.
                     onLongClick = {
                         if (note.id != 0) {
                             openDialog.value = true
@@ -383,7 +391,7 @@ fun NoteListItem(
                     }
                 )
         ) {
-            //Title for the note
+            //Shows the title
             Text(
                 text = note.title,
                 color = MaterialTheme.colorScheme.onSurface,
@@ -391,7 +399,6 @@ fun NoteListItem(
                 modifier = Modifier.align(Alignment.CenterHorizontally),
                 fontSize = 20.sp,
             )
-            //Row for location and dropdown for notes-(To display more info)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -399,14 +406,14 @@ fun NoteListItem(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                //Location
+                //Shows the location and hamburger menu icon in a row, for aesthetic purposes.
                 Icon(Icons.Outlined.Place, contentDescription = null)
                 Text(
                     text = "Location: " + note.location,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
-                // Add an IconButton for the dropdown arrow
                 Spacer(modifier = Modifier.weight(1f))
+                //Hamburger menu, expands the note details
                 IconButton(onClick = { isExpanded.value = !isExpanded.value }) {
                     Icon(
                         imageVector = if (isExpanded.value) Icons.Filled.ArrowDropDown else Icons.Filled.Menu,
@@ -414,12 +421,12 @@ fun NoteListItem(
                     )
                 }
             }
-            // Use AnimatedVisibility to show/hide additional information
             AnimatedVisibility(visible = isExpanded.value) {
                 Column(
                     modifier = Modifier.padding(start = 8.dp, top = 8.dp)
                 ) {
                     if (!note.imageUri.isNullOrEmpty()) {
+                        //Displays the image
                         Image(
                             painter = rememberAsyncImagePainter(
                                 ImageRequest
@@ -434,31 +441,31 @@ fun NoteListItem(
                             contentScale = ContentScale.Crop
                         )
                     }
-                    //Short note
+                    //Shows a short note that is associated with the journal entry (note) that gives a brief description to remind users what that note is about
                     Text(
                         text = "Note: " + note.note,
                         color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.padding(top = 15.dp),
                     )
-                    //Description
+                    //Shows the description of the note
                     Text(
                         text = "Description: " + note.description,
                         color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.padding(top = 15.dp),
                     )
-                    //Time
+                    //Shows the time of the note (the user sets this)
                     Text(
                         text = "Time: " + note.time,
                         color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.padding(top = 15.dp),
                     )
-                    //Date
+                    //Shows the date of the note (the user sets this)
                     Text(
                         text = "Date: " + note.date,
                         color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.padding(top = 15.dp),
                     )
-                    //Date updated which is also Last Modified
+                    //Shows the date the note was last updated
                     Text(
                         text = "Last Modified: " + note.dateUpdated,
                         color = MaterialTheme.colorScheme.onSurface,
@@ -473,16 +480,14 @@ fun NoteListItem(
     }
 }
 
-//Delete dialog used as  confirmation dialogs for deletion of notes.
+//Delete dialog composable acts as a confirmation box. This shows up when users are deleting all notes or deleting a single note.
 @Composable
 fun DeleteDialog(
     openDialog: MutableState<Boolean>,
     text: MutableState<String>,
     action: () -> Unit
 ) {
-    //If the openDialog is true, show the dialog. It must be triggered either by pressing the "Delete" button or long pressing on a note (Long-press to delete a note)
     if (openDialog.value) {
-        //Shows the AlertDialog which is similar to a confirmation box.
         AlertDialog(
             icon = {
                 Icon(
@@ -490,20 +495,17 @@ fun DeleteDialog(
                     contentDescription = "Delete Note"
                 )
             },
-            //Title
             title = {
                 Text(
                     text = "DELETE",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold)
             },
-            //Shows the different dialogs, one is for deletion of all notes, and another is for deletion of one note.
             text = {
                 Column {
                     Text(text = text.value)
                 }
             },
-            //Confirm button. Invoke() the actions which is deleting the note(s)
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -524,7 +526,6 @@ fun DeleteDialog(
                         fontWeight = FontWeight.Bold)
                 }
             },
-            //Closes the AlertDialog
             onDismissRequest = {
                 openDialog.value = false
             }
@@ -532,23 +533,9 @@ fun DeleteDialog(
     }
 }
 
-//Composable for FAB (Floating Action Bar), to allow users to create notes.
-@Composable
-fun NotesFab(contentDescription: String, icon: Int, action: () -> Unit) {
-    FloatingActionButton(
-        containerColor = MaterialTheme.colorScheme.primary,
-        contentColor = MaterialTheme.colorScheme.onPrimary,
-        onClick = { action.invoke() },
-    ) {
-        Icon(
-            imageVector = ImageVector.vectorResource(id = icon),
-            contentDescription = contentDescription,
-            tint = MaterialTheme.colorScheme.onPrimary
-        )
-    }
-}
 
-//This is a tooltip composable to allow users to read about tips.eee
+
+//Tool tip to show the users some tips about how to use the app.
 @Composable
 fun ToolTip(toolTipShow: MutableState<Boolean>) {
     AnimatedVisibility(
@@ -561,6 +548,7 @@ fun ToolTip(toolTipShow: MutableState<Boolean>) {
                 modifier = Modifier
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.primaryContainer)
+                    .clickable { /* No action, just to consume clicks so that the notes behind the Tool tips won't be pressed.*/ }
             ) {
                 Box(
                     modifier = Modifier

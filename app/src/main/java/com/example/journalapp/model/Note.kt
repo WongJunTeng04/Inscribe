@@ -14,7 +14,7 @@ import java.util.Locale
 //Represents a table for an individual NOTE, in the database
 @Entity(tableName = Constants.TABLE_NAME, indices = [Index(value = ["id"], unique = true)])
 data class Note(
-    //1) Unique for each note
+    //1) Unique for each note (Primary Key) It is auto-generated
     @PrimaryKey(autoGenerate = true) val id: Int? = null,
     //2) The actual note
     @ColumnInfo(name = "note") val note: String,
@@ -41,7 +41,7 @@ data class Note(
         }
     }
 
-    //Gets the day of the note was created. Using Locale
+    //Get the day when the note was created. Using Locale
     fun getDay(): String {
         if (this.dateUpdated.isEmpty()) return ""
 

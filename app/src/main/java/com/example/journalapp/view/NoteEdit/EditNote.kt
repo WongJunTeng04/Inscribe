@@ -61,6 +61,9 @@ import kotlinx.coroutines.launch
 //Keep in mind, although the CreateNoteScreen and NoteEditScreen is extremely similar, a lot of the logic in the
 //CreateNoteScreen is not the same as the NoteEditScreen as there are more things to consider in the NoteEditScreen.
 
+//This page is accessed when users press on the edit icon in the NavBar in the NoteDetailPage. Here they can edit
+//the note details and update it, storing it in the database.
+
 //Note Edit Screen
 @SuppressLint("DefaultLocale")
 @Composable
@@ -126,7 +129,7 @@ fun NoteEditScreen(
         }
     }
 
-    // Function to check if any field has value //This prevents the users from saving a note which has no values during editing
+    // Function to check if any field has value //This prevents the users from saving a note which has no values during editing (VERY IMPORTANT)
     fun hasValues(): Boolean {
         return currentPhotos.value != null ||
                 currentTitle.value.isNotBlank() ||
@@ -239,7 +242,7 @@ fun NoteEditScreen(
                                 tint = MaterialTheme.colorScheme.onPrimary
                             )
                         }
-                        //Allows users to confirm their changes.
+                        //Allows users to confirm their changes. (It is shown as a tick)
                         IconButton(onClick = {
                             if (hasValues()) {
                                 viewModel.updateNote(
@@ -277,7 +280,7 @@ fun NoteEditScreen(
                             getImageRequest.launch(arrayOf("image/*"))
                         }) {
                             Icon(
-                                imageVector = ImageVector.vectorResource(id = R.drawable.camera),
+                                imageVector = ImageVector.vectorResource(id = R.drawable.image),
                                 contentDescription = "Add Image",
                                 tint = MaterialTheme.colorScheme.onPrimary
                             )

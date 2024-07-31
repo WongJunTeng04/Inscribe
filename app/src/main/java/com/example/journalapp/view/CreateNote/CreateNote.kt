@@ -1,6 +1,6 @@
 package com.example.journalapp.view.CreateNote
 
-//Import
+//Imports
 import android.annotation.SuppressLint
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -40,17 +40,16 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.journalapp.JournalNotesApp
 import com.example.journalapp.R
-import com.example.journalapp.view.NotesList.NotesFab
 import com.example.journalapp.view.SharedComponents.DatePickerComponent
 import com.example.journalapp.view.SharedComponents.DatePickerDialog
 import com.example.journalapp.view.SharedComponents.GenericAppBar
+import com.example.journalapp.view.SharedComponents.NotesFab
 import com.example.journalapp.view.SharedComponents.TimePickerComponent
 import com.example.journalapp.view.SharedComponents.TimePickerDialog
 import com.example.journalapp.view.theme.AppTheme
 import com.example.journalapp.viewModel.NotesViewModel
 
-//To handle the mutableStateOf each variable: Photos, Title, Note, Description, Time, Date, Location,
-//Navigation icon and Save icon
+//To handle the mutableStateOf each variable: Photos, Title, Note, Description, Time, Date, Location, Navigation icon and Save icon
 class CreateNoteViewModel : ViewModel() {
     val currentPhotos = mutableStateOf("")
     val currentTitle = mutableStateOf("")
@@ -74,7 +73,7 @@ fun CreateNoteScreen(
     val createNoteViewModel: CreateNoteViewModel = viewModel()
 
     //Get the current values of each variable. Helps ensure that the values are preserved even after recompositions and screen rotations.
-    //Each variable considered in order:
+    //Each variable considered in order (it is also displayed in this order in the UI):
     //1) Photos, 2) Title, 3) Note, 4) Description, 5) Time, 6) Date, 7) Location, 8) Navigation icon, 9) Save icon
     val currentPhotos = createNoteViewModel.currentPhotos
     val currentTitle = createNoteViewModel.currentTitle
@@ -137,6 +136,8 @@ fun CreateNoteScreen(
                                 tint = MaterialTheme.colorScheme.onPrimary,
                             )
                         },
+                        //When the save button is clicked, the note is created and stored in the database. The title, note, description, time, date, location
+                        //and photos are stored in the database.
                         onIconClick = {
                             viewModel.createNote(
                                 currentTitle.value,
@@ -179,7 +180,7 @@ fun CreateNoteScreen(
                         //Display the elements -> Each are labeled with their corresponding names.
                         items(listOf("photo", "title", "note", "description", "time_date", "location")) { item ->
                             when (item) {
-                                //Image
+                                //Image (Is displayed in a Box compose element)
                                 "photo" -> Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -207,7 +208,7 @@ fun CreateNoteScreen(
                                         )
                                     }
                                 }
-                                //Title
+                                //Title (OutlinedTextField for users to enter the title)
                                 "title" -> OutlinedTextField(
                                     value = currentTitle.value,
                                     modifier = Modifier
@@ -221,7 +222,7 @@ fun CreateNoteScreen(
                                     },
                                     label = { Text("Title") }
                                 )
-                                //Note
+                                //Note (OutlinedTextField for users to enter a short note to relate it to what the note is about)
                                 "note" -> OutlinedTextField(
                                     value = currentNote.value,
                                     modifier = Modifier
@@ -235,7 +236,7 @@ fun CreateNoteScreen(
                                     },
                                     label = { Text("Note") },
                                 )
-                                //Description
+                                //Description (OutlinedTextField for users to enter a description for the note)
                                 "description" -> OutlinedTextField(
                                     value = currentDescription.value,
                                     modifier = Modifier
@@ -264,6 +265,7 @@ fun CreateNoteScreen(
                                             .padding(start = 15.dp)
                                             .weight(3f)
                                     )
+                                    //Shows the TimePicker to allow users to choose the time (in the form of a clock)
                                     TextButton(onClick = { showTimePickerDialog.value = true }) {
                                         Text("Time")
                                     }
@@ -276,6 +278,7 @@ fun CreateNoteScreen(
                                         label = { Text("Date") },
                                         modifier = Modifier.weight(3f)
                                     )
+                                    //Shows the DatePicker to allow users to choose the date (in the form of a calender)
                                     TextButton(onClick = { showDatePickerDialog.value = true }) {
                                         Text("Date")
                                     }
@@ -294,7 +297,8 @@ fun CreateNoteScreen(
                             }
                         }
                     }
-                    //When the TimePickerDialog is clicked, on the UI it is shown as "Time"
+                    //When the TimePickerDialog is clicked it shows the Time Picker, on the UI it is shown as "Time"
+                    // (If confirm, it stores the time the user has selected), (If cancel, it hides the TimePicker)
                     if (showTimePickerDialog.value) {
                         TimePickerDialog(
                             title = "Select Time",
@@ -309,6 +313,7 @@ fun CreateNoteScreen(
                         )
                     }
                     //When the DatePickerDialog is clicked, on the UI it is shown as "Date"
+                    // (If confirm, it stores the date the user has selected), (If cancel, it hides the DatePicker)
                     if (showDatePickerDialog.value) {
                         DatePickerDialog(
                             title = "Select Date",
@@ -327,4 +332,3 @@ fun CreateNoteScreen(
         }
     }
 }
-

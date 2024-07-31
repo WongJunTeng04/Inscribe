@@ -9,6 +9,13 @@
     <!-- To handle the reselection within the app on devices running Android 14 or higher. Helps targets Android 14 (API level 34) or higher.  -->
     <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
 
+    <!--Permission: THIS IS FOR ALLOWING THE SYSTEM TO TAKE A PICTURE -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+
+
     <application
         android:name=".JournalNotesApp"
 

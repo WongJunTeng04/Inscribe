@@ -13,6 +13,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import com.example.ui.theme.AppTypography
 
+//Imported from the Materials 3 Theme Builder. Allows nicer UI themes and more customizability
+//Some of these elements are never used but it's okay
+
 private val lightScheme = lightColorScheme(
     primary = primaryLight,
     onPrimary = onPrimaryLight,
