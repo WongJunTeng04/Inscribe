@@ -1,6 +1,6 @@
 package com.example.journalapp.view.NoteDetail
 
-//Imports
+// Imports
 import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
@@ -44,41 +44,50 @@ import com.example.journalapp.viewModel.NotesViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-//This NoteDetail.kt file is basically a detailed view for the note. When users click on the note in the
+// This NoteDetail.kt file is basically a detailed view for the note. When users click on the note in the
 // NoteListScreen (or main page), they are brought to the NoteDetailPage.
 
-//Composable for displaying Note Detail. //This shows the note details when user clicks on it.
+// Composable for displaying Note Detail. // This shows the note details when user clicks on it.
 @Composable
-fun NoteDetailPage(noteId: Int, navController: NavController, viewModel: NotesViewModel) {
-    val scope = rememberCoroutineScope() // Collect note details
+fun NoteDetailPage(
+    noteId: Int, navController: NavController,
+    viewModel: NotesViewModel ) {
+
+    // Collect note details
+    val scope = rememberCoroutineScope()
+    // Manage state within a composable function and ensures the state is retained across recompositions, so the value persists even if the UI is re-rendered.
     val note = remember { mutableStateOf(noteDetailPlaceHolder) }
 
-    //Show navIcon, mutableStateOf(true)
+    // Show navIcon, mutableStateOf(true)
     val navIconState = remember { mutableStateOf(true) }
 
-    //Collects note details
+    // Collects note details
     LaunchedEffect(true) {
         scope.launch(Dispatchers.IO) {
             note.value = viewModel.getNote(noteId) ?: noteDetailPlaceHolder
         }
     }
-    //Main Theme
+    // Main Content Area
     AppTheme {
         //Explained once: This surface on top of a scaffold is to allow easier customizability of the screens.
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+            //Puts all elements into a scaffold so that they can be displayed
             Scaffold(
+                //The Top App Bar
                 topBar = {
+                    // Uses the GenericAppBar composable that is created in the Shared.kt file
                     GenericAppBar(
-                        title = "Details", //Title of screen
-                        //For navigation, using the nav_arrow to go back to the previous screen
+                        title = "Details", // Title of screen
+                        // For navigation, using the nav_arrow to go back to the previous screen
                         navIcon = {
+                            // For icon to go back
                             Icon(
                                 imageVector = ImageVector.vectorResource(id = R.drawable.nav_arrow),
                                 contentDescription = "Back",
                                 tint = MaterialTheme.colorScheme.onPrimary
                             )
                         },
-                        //Goes back to the previous screen
+                        // Goes back to the previous screen
                         onBackIconClick = {
                             if (navController.currentBackStackEntry?.lifecycle?.currentState
                                 == Lifecycle.State.RESUMED
@@ -86,7 +95,7 @@ fun NoteDetailPage(noteId: Int, navController: NavController, viewModel: NotesVi
                                 navController.popBackStack()
                             }
                         },
-                        //For editing, using the edit icon, to edit a note
+                        // For editing, using the edit icon, to edit a note
                         icon = {
                             Icon(
                                 imageVector = ImageVector.vectorResource(id = R.drawable.edit),
@@ -94,32 +103,34 @@ fun NoteDetailPage(noteId: Int, navController: NavController, viewModel: NotesVi
                                 tint = MaterialTheme.colorScheme.onPrimary
                             )
                         },
-                        //Navigates you to the note edit page where you can edit the particular page
+                        // Navigates you to the  note edit page where you can edit the specific note
                         onIconClick = {
                             navController.navigate(Constants.noteEditNavigation(note.value.id ?: 0))
                         },
+                        // Navigation Icon state
                         navIconState = navIconState,
                         iconState = remember { mutableStateOf(true) }
                     )
                 },
-                //Main Content of Note Detail Page
+                // Main Content of Note Detail Page
                 // This LazyColumn is done is different from CreateNoteScreen because it allows for more customizability for the UI
                 content = { innerPadding ->
-                    //The LazyColumn is similar to the RecyclerView in Android. It is more lightweight but provides the same functionality as
-                    //a RecyclerView
+                    // The LazyColumn is similar to the RecyclerView in Android. It is more lightweight but provides the same functionality as
+                    // a RecyclerView
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(innerPadding),
                     ) {
+                        // LazyColumn item 1: Image
                         item {
-                            //Displays the image to the user. If there is an image, display the image. If there is no image, display a placeholder text instead.
+                            // Displays the image to the user. If there is an image, display the image. If there is no image, display a placeholder text instead.
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(370.dp)
                             ) {
-                                //If there is an image, display the image
+                                // If there is an image, display the image
                                 if (note.value.imageUri != null && note.value.imageUri!!.isNotEmpty()) {
                                     Image(
                                         painter = rememberAsyncImagePainter(
@@ -132,8 +143,7 @@ fun NoteDetailPage(noteId: Int, navController: NavController, viewModel: NotesVi
                                             .fillMaxSize(),
                                         contentScale = ContentScale.Crop
                                     )
-                                } else {
-                                    //If there is no image, display an Image placeholder instead.
+                                } else { // If there is no image, display an Image placeholder instead.
                                     Text(
                                         text = "Image Placeholder",
                                         modifier = Modifier.align(Alignment.Center),
@@ -143,32 +153,33 @@ fun NoteDetailPage(noteId: Int, navController: NavController, viewModel: NotesVi
                                 }
                             }
                         }
-                        //Displays the title of the note
+                        // LazyColumn item 2: Title, Note, and Date updated
+                        // Displays the title of the entry
                         item {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text(
-                                    text = note.value.title,
+                                    text = note.value.title, // Displays the value of the title
                                     modifier = Modifier
                                         .padding(top = 10.dp),
                                     fontSize = 30.sp,
                                     fontWeight = FontWeight.Bold
                                 )
-                                //Displays a short note to allow users to remember what that note is for
+                                // Displays a short note to allow users to remember what that entry is for
                                 Text(
-                                    text = note.value.note,
+                                    text = note.value.note, // Displays the value of the note
                                     modifier = Modifier
                                         .padding(top = 4.dp),
                                     fontSize = 20.sp
                                 )
-                                //Displays when the note was last modified
+                                // Displays when the note was last modified
                                 Text(
-                                    text = note.value.dateUpdated,
+                                    text = note.value.dateUpdated, // Displays the value of the date the entry was updated
                                     modifier = Modifier
                                         .padding(top = 5.dp),
                                     fontSize = 15.sp,
                                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                                 )
-                                //A horizontal divider just to make it look pretty
+                                //A horizontal divider just to make it look good for aesthetic purposes.
                                 HorizontalDivider(
                                     modifier = Modifier.padding(
                                         start = 10.dp,
@@ -178,8 +189,9 @@ fun NoteDetailPage(noteId: Int, navController: NavController, viewModel: NotesVi
                                 )
                             }
                         }
+                        // LazyColumn item 3: Description, Time, Date, Location
                         item {
-                            //Column for showing the other details such as Description, Time, Date, Location
+                            // Column for showing the other details such as Description, Time, Date, Location
                             Column(
                                 modifier = Modifier.padding(
                                     start = 20.dp,
@@ -187,77 +199,77 @@ fun NoteDetailPage(noteId: Int, navController: NavController, viewModel: NotesVi
                                     top = 10.dp,
                                 )
                             ) {
-                                //1) Description
-                                //Each of the element is displayed in a Row to make it look nice.
+                                // 1) Description
+                                // Each of the element is displayed in a Row to make it look nice.
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(top = 10.dp)
                                 ) {
-                                    //Description label
+                                    // Description label
                                     Text(
                                         text = "Description:",
                                         fontSize = 20.sp,
                                         modifier = Modifier.weight(1f)
                                     )
-                                    //Description actual value
+                                    // Description's actual value
                                     Text(
                                         text = note.value.description,
                                         fontSize = 20.sp,
                                         modifier = Modifier.weight(2f).padding(start = 10.dp)
                                     )
                                 }
-                                //2) Time
+                                // 2) Time
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(top = 10.dp)
                                 ) {
-                                    //Time label
+                                    // Time label
                                     Text(
                                         text = "Time:",
                                         fontSize = 20.sp,
                                         modifier = Modifier.weight(1f)
                                     )
-                                    //Time actual value (the user chooses this)
+                                    // Time's actual value (the time the user has picked)
                                     Text(
                                         text = note.value.time,
                                         fontSize = 20.sp,
                                         modifier = Modifier.weight(2f).padding(start = 10.dp)
                                     )
                                 }
-                                //3) Date
+                                // 3) Date
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(top = 10.dp)
                                 ) {
-                                    //Date label
+                                    // Date label
                                     Text(
                                         text = "Date:",
                                         fontSize = 20.sp,
                                         modifier = Modifier.weight(1f)
                                     )
-                                    //Date actual value (the user chooses this)
+                                    // Date actual value (the date the user has picked)
                                     Text(
                                         text = note.value.date,
                                         fontSize = 20.sp,
                                         modifier = Modifier.weight(2f).padding(start = 10.dp)
                                     )
                                 }
-                                //4) Location
+                                // 4) Location
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(top = 10.dp, bottom = 10.dp)
                                 ) {
-                                    //Location label
+                                    // Location label
                                     Text(
                                         text = "Location:",
                                         fontSize = 20.sp,
                                         modifier = Modifier.weight(1f)
                                     )
-                                    //Location actual value
+                                    // Location actual value
                                     Text(
                                         text = note.value.location,
                                         fontSize = 20.sp,

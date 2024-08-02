@@ -1,6 +1,6 @@
 package com.example.journalapp.view.NotesList
 
-//Imports
+// Imports
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -77,48 +77,49 @@ import com.example.journalapp.view.SharedComponents.NotesFab
 import com.example.journalapp.view.theme.AppTheme
 import com.example.journalapp.viewModel.NotesViewModel
 
-//NoteListScreen is the screen that displays the journal entries (notes) in a list and acts as the main page.
-//When users start the app, the first composable they will see is this composable.
+// NoteListScreen is the screen that displays the journal entries (notes) in a list and acts as the main page.
+// When users start the app, the first composable they will see is this composable.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NoteListScreen(
     navController: NavController,
     viewModel: NotesViewModel
 ) {
-    //Variables
+    // Variables to remember the state of each component
     val openDialog = remember { mutableStateOf(false) }
     val deleteText = remember { mutableStateOf("") }
     val noteQuery = remember { mutableStateOf("") }
     val notesToDelete = remember { mutableStateOf(listOf<Note>()) }
     val notes = viewModel.notes.observeAsState()
     val context = LocalContext.current
-
-    //Variables
     val isSearchBarVisible = remember { mutableStateOf(false) }
     val toolTipShow = remember { mutableStateOf(false) }
 
+    // Main content area
     AppTheme {
+        // Surface is a container that provides the overall theme
         Surface(modifier = Modifier.fillMaxSize()) {
             Scaffold(
                 topBar = {
-                    //Top app bar
+                    // Top app bar, not using the GenericAppBar created in Shared.kt, because I want to customise the top app bar for this screen.
                     CenterAlignedTopAppBar(
                         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                             containerColor = MaterialTheme.colorScheme.primary,
                             titleContentColor = MaterialTheme.colorScheme.onPrimary
                         ),
-                        //Title
+                        // Title = Title of this app is called Inscribe
                         title = {
                             Text(
-                                "INFOPAL",
+                                "Inscribe",
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                                 fontWeight = FontWeight.Bold
                             )
                         },
-                        //Navigation icon. In this navigation icon, it is different from other screens because it displays a ToolsTip instead of
+                        // Navigation icon. In this navigation icon, it is different from other screens because it displays a ToolsTip instead of
                         // allowing users to navigate. This is done for the aesthetics of the app. It is just a design not a flaw in logic
                         navigationIcon = {
+                            //To display the tools tip
                             IconButton(onClick = {
                                 toolTipShow.value = !toolTipShow.value
                             }) {
@@ -129,12 +130,12 @@ fun NoteListScreen(
                                 )
                             }
                         },
-                        //Actions. There are two actions here (Search and Delete)
-                        //1) Search: Allows users to query their journal entries (notes) based on keywords. It queries the notes based on their title,
-                        //note, description, time and date.
-                        //2) Allows users to quickly delete all notes, done for easier access and deletion of all notes instead of deleting all notes one by one.
+                        // Actions. There are two actions here (Search and Delete)
+                        // 1) Search: Allows users to query their journal entries (notes) based on keywords. It queries the notes based on their title,
+                        // note, description, time and date.
+                        // 2) Allows users to quickly delete all notes, done for easier access and deletion of all notes instead of deleting all notes one by one.
 
-                        //1) Search (When users click on it, the search bar will appear, become visible.)
+                        // 1) Search (When users click on it, the search bar will appear, become visible.)
                         actions = {
                             IconButton(onClick = {
                                 isSearchBarVisible.value = !isSearchBarVisible.value
@@ -370,16 +371,16 @@ fun NoteListItem(
             modifier = Modifier
                 .background(noteBackground)
                 .fillMaxWidth()
-                //Allows the content to take as much width and height as they need
-                .wrapContentWidth() //Takes up as much width as it needs
-                .wrapContentHeight() //Takes up as much height as it needs
+                // Allows the content to take as much width and height as they need
+                .wrapContentWidth() // Takes up as much width as it needs
+                .wrapContentHeight() // Takes up as much height as it needs
                 .padding(12.dp)
-                //Allows users to do two different things in 2 different ways: 1) Short click = Navigate to the note 2) Long click = Delete note
+                // Allows users to do two different things in 2 different ways: 1) Short click = Navigate to the note 2) Long click = Delete note
                 .combinedClickable(
-                    //Interaction source is for the ripple effect
+                    // Interaction source is for the ripple effect
                     interactionSource = remember { MutableInteractionSource() },
                     indication = rememberRipple(bounded = false),
-                    //On short clicks, the users are redirected to the NoteDetails where they are shown the note's details in more detail.
+                    // On short clicks, the users are redirected to the NoteDetails where they are shown the note's details in more detail.
                     onClick = {
                         if (note.id != 0) {
                             navController.navigate(
@@ -387,7 +388,7 @@ fun NoteListItem(
                             )
                         }
                     },
-                    //On long clicks, the users can delete the individual notes they want.
+                    // On long clicks, the users can delete the individual notes they want.
                     onLongClick = {
                         if (note.id != 0) {
                             openDialog.value = true
@@ -397,7 +398,7 @@ fun NoteListItem(
                     }
                 )
         ) {
-            //Shows the title
+            // Shows the title
             Text(
                 text = note.title,
                 color = MaterialTheme.colorScheme.onSurface,
@@ -412,14 +413,14 @@ fun NoteListItem(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                //Shows the location and hamburger menu icon in a row, for aesthetic purposes.
+                // Shows the location and hamburger menu icon in a row, for aesthetic purposes.
                 Icon(Icons.Outlined.Place, contentDescription = null)
                 Text(
                     text = "Location: " + note.location,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
                 Spacer(modifier = Modifier.weight(1f))
-                //Hamburger menu, expands the note details
+                // Hamburger menu, expands the note details
                 IconButton(onClick = { isExpanded.value = !isExpanded.value }) {
                     Icon(
                         imageVector = if (isExpanded.value) Icons.Filled.ArrowDropDown else Icons.Filled.Menu,
@@ -512,6 +513,7 @@ fun DeleteDialog(
                     Text(text = text.value)
                 }
             },
+            // Confirm button to confirm deletion
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -522,6 +524,7 @@ fun DeleteDialog(
                     Text(text = "Confirm")
                 }
             },
+            // Cancel button to cancel deletion
             dismissButton = {
                 TextButton(
                     onClick = {
@@ -564,17 +567,17 @@ fun ToolTip(toolTipShow: MutableState<Boolean>) {
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            text = "TIPS OF INFOPAL",
+                            text = "TIPS OF INSCRIBE",
                             style = MaterialTheme.typography.headlineLarge
                         )
                         HorizontalDivider(modifier = Modifier.padding(10.dp))
                         Spacer(modifier = Modifier.height(15.dp))
                         Text(
-                            text = "Welcome to INFOPAL"
+                            text = "Welcome to Inscribe"
                         )
                         Spacer(modifier = Modifier.height(30.dp))
                         Text(
-                            text = "INFOPAL is your daily journal, where you can store all your thoughts and experiences."
+                            text = "Inscribe is your daily journal, where you can store all your thoughts and experiences."
                         )
                         Spacer(modifier = Modifier.height(15.dp))
                         Text(

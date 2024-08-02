@@ -1,18 +1,21 @@
 package com.example.journalapp.view.SharedComponents
 
 //Imports
+import android.content.ContentValues
+import android.content.Context
+import android.graphics.Bitmap
+import android.net.Uri
+import android.provider.MediaStore
 import android.widget.DatePicker
 import android.widget.TimePicker
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -80,7 +83,7 @@ fun GenericAppBar(
                 }
             )
         },
-        //The actions are like save and edit (Shown in the CreateNoteScreen and EditNoteScreen)
+        //The actions are invoked on click (Shown in the CreateNoteScreen and EditNoteScreen)
         actions ={
             IconButton(
                 onClick = {
@@ -289,41 +292,68 @@ fun NotesFab(contentDescription: String, icon: Int, action: () -> Unit) {
     }
 }
 
-//Composable displays where there is no notes
 @Composable
 fun EmptyNote() {
-    // Create a column to center the image and text
-    Column(
+    LazyColumn(
         modifier = Modifier
-            .fillMaxSize(), // Fill the available screen size
-        verticalArrangement = Arrangement.Center, // Center content vertically
-        horizontalAlignment = Alignment.CenterHorizontally // Center content horizontally
+            .fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Display an image
-        Image(
-            painter = painterResource(id = R.drawable.pencil), // Replace with your image resource
-            contentDescription = "No Notes",
-            modifier = Modifier.size(300.dp) // Set the size of the image
-        )
-        Spacer(modifier = Modifier.height(16.dp)) // Add space between image and text
-
-        // Display the first line of text
-        Text(
-            text = "No notes found",
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurface,
-            textAlign = TextAlign.Center,
-            fontSize = 30.sp
-        )
-        Spacer(modifier = Modifier.height(8.dp)) // Add space between texts
-
-        // Display the second line of text
-        Text(
-            text = "Tap + to create a journal entry",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface,
-            textAlign = TextAlign.Center,
-            fontSize = 20.sp
-        )
+        item {
+            // Display an image with adaptive sizing
+            Image(
+                painter = painterResource(id = R.drawable.pencil),
+                contentDescription = "No Notes",
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+        }
+        item {
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+        item {
+            // Display the first line of text
+            Text(
+                text = "No entries found",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center,
+                fontSize = 30.sp
+            )
+        }
+        item {
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+        item {
+            // Display the second line of text
+            Text(
+                text = "Tap + to create an entry",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center,
+                fontSize = 20.sp
+            )
+        }
     }
+}
+
+
+// Helper function to save a Bitmap to the MediaStore and return its Uri
+//Used in both CreateNote.kt and EditNote.kt to allow users to take a picture and store it in their
+//gallery to use as a photo for their note.
+fun saveBitmapToMediaStore(context: Context, bitmap: Bitmap): Uri? {
+    val contentValues = ContentValues().apply {
+        put(MediaStore.Images.Media.DISPLAY_NAME, "image_${System.currentTimeMillis()}.jpg")
+        put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+        put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/JournalApp")
+    }
+
+    val uri: Uri? = context.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+    uri?.let {
+        context.contentResolver.openOutputStream(it)?.use { outputStream ->
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+        }
+    }
+    return uri
 }

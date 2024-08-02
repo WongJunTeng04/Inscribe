@@ -1,10 +1,12 @@
 package com.example.journalapp.view.NoteEdit
 
-//Imports
+// Imports
 import android.annotation.SuppressLint
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.launch
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -53,18 +55,19 @@ import com.example.journalapp.view.SharedComponents.DatePickerDialog
 import com.example.journalapp.view.SharedComponents.GenericAppBar
 import com.example.journalapp.view.SharedComponents.TimePickerComponent
 import com.example.journalapp.view.SharedComponents.TimePickerDialog
+import com.example.journalapp.view.SharedComponents.saveBitmapToMediaStore
 import com.example.journalapp.view.theme.AppTheme
 import com.example.journalapp.viewModel.NotesViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-//Keep in mind, although the CreateNoteScreen and NoteEditScreen is extremely similar, a lot of the logic in the
-//CreateNoteScreen is not the same as the NoteEditScreen as there are more things to consider in the NoteEditScreen.
+// Keep in mind, although the CreateNoteScreen and NoteEditScreen are extremely similar, a lot of the logic in the
+// CreateNoteScreen is not the same as the NoteEditScreen as there are more things to consider in the NoteEditScreen.
 
-//This page is accessed when users press on the edit icon in the NavBar in the NoteDetailPage. Here they can edit
-//the note details and update it, storing it in the database.
+// This page is accessed when users press on the edit icon in the NavBar in the NoteDetailPage. Here they can edit
+// the entry details and update it, storing it in the database.
 
-//Note Edit Screen
+// Note Edit Screen
 @SuppressLint("DefaultLocale")
 @Composable
 fun NoteEditScreen(
@@ -72,14 +75,14 @@ fun NoteEditScreen(
     navController: NavController,
     viewModel: NotesViewModel
 ) {
-    //To handle database operations and creates a CoroutineScope that is tied to the lifecycle of the composable
-    //The database operation here is to update the notes with the values changed
+    // To handle database operations and create a CoroutineScope that is tied to the lifecycle of the composable
+    // The database operation here is to update the notes with the values changed
     val scope = rememberCoroutineScope()
     val note = remember { mutableStateOf(Constants.noteDetailPlaceHolder) }
 
     // Find properties for each individual object within the note
     // React to changes in the composable. Also, this is done this way to retain information in an event of screen rotation and recomposition.
-    //Below, Information is stored according to:
+    // Below, Information is stored according to:
     // 1) Photos, 2) Title, 3) Note, 4) Description, 5) Time, 6) Date, 7) Location
     val currentPhotos = rememberSaveable { mutableStateOf(note.value.imageUri) }
     val currentTitle = rememberSaveable { mutableStateOf(note.value.title) }
@@ -89,12 +92,12 @@ fun NoteEditScreen(
     val currentDate = rememberSaveable { mutableStateOf(note.value.date) }
     val currentLocation = rememberSaveable { mutableStateOf(note.value.location) }
 
-    //Save button
+    // Save button
     val saveButtonState = rememberSaveable { mutableStateOf(false) }
-    //Navigation button
+    // Navigation button
     val navIconState = rememberSaveable { mutableStateOf(true) }
 
-    //For TimePicker and DatePicker
+    // For TimePicker and DatePicker
     val showTimePickerDialog = rememberSaveable { mutableStateOf(false) }
     val showDatePickerDialog = rememberSaveable { mutableStateOf(false) }
     val selectedHour = rememberSaveable { mutableIntStateOf(0) }
@@ -103,7 +106,7 @@ fun NoteEditScreen(
     val selectedMonth = rememberSaveable { mutableIntStateOf(0) }
     val selectedYear = rememberSaveable { mutableIntStateOf(0) }
 
-    //Get image from gallery
+    // Get image from gallery
     val getImageRequest = rememberLauncherForActivityResult(contract = ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) {
             JournalNotesApp.getUriPermission(uri)
@@ -114,8 +117,34 @@ fun NoteEditScreen(
         saveButtonState.value = false
     }
 
-    //Get note from database for that specific note
-    //The scope.launch(Dispatchers.IO) block is used to fetch the note from the database in the background.
+    // Launch camera to take a picture, takes a bitmap and saves it to the media store (the phone's gallery)
+    val context = LocalContext.current
+    val takePictureRequest = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicturePreview(),
+        onResult = { bitmap ->
+            if (bitmap != null) {
+                val uri = saveBitmapToMediaStore(context, bitmap)
+                if (uri != null) {
+                    currentPhotos.value = uri.toString()
+                }
+            }
+        }
+    )
+
+    // Request camera permission
+    val requestCameraPermission = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            if (isGranted) {
+                takePictureRequest.launch()
+            } else { // Shows this toast message when the user denies the permission request to inform users why the permission is needed.
+                Toast.makeText(context, "Camera permission is required to take photos.", Toast.LENGTH_LONG).show()
+            }
+        }
+    )
+
+    // Get note from database for that specific note
+    // The scope.launch(Dispatchers.IO) block is used to fetch the note from the database in the background.
     LaunchedEffect(true) {
         scope.launch(Dispatchers.IO) {
             note.value = viewModel.getNote(noteId) ?: Constants.noteDetailPlaceHolder
@@ -129,7 +158,8 @@ fun NoteEditScreen(
         }
     }
 
-    // Function to check if any field has value //This prevents the users from saving a note which has no values during editing (VERY IMPORTANT)
+    // Function to check if any field has value
+    // This prevents the users from saving a note which has no values during editing (VERY IMPORTANT)
     fun hasValues(): Boolean {
         return currentPhotos.value != null ||
                 currentTitle.value.isNotBlank() ||
@@ -139,18 +169,18 @@ fun NoteEditScreen(
                 currentDate.value.isNotBlank() ||
                 currentLocation.value.isNotBlank()
     }
-
-    //Main content area
+    // Main content area
     AppTheme {
-        //A surface container using the colorScheme.primary
+        // A surface container using the colorScheme.primary
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.primary) {
+            //Scaffold to hold the content
             Scaffold(
                 topBar = {
-                    //Uses the GenericAppBar composable created in the Shared.kt file
+                    // Uses the GenericAppBar composable created in the Shared.kt file
                     GenericAppBar(
-                        //Title
+                        // Title
                         title = "Edit",
-                        //Navigation Icon, allows users to go back to the previous screen they came from
+                        // Navigation Icon, allows users to go back to the previous screen they came from
                         navIcon = {
                             Icon(
                                 imageVector = ImageVector.vectorResource(id = R.drawable.nav_arrow),
@@ -158,15 +188,16 @@ fun NoteEditScreen(
                                 tint = MaterialTheme.colorScheme.onPrimary
                             )
                         },
-                        //Once the user presses on the navigation icon, they are led back to the previous screen
+                        // Once the user presses on the navigation icon, they are led back to the previous screen.
                         onBackIconClick = {
+                            // Additional fail-safe implementation to prevent the user from going back to the wrong previous screen
                             if (navController.currentBackStackEntry?.lifecycle?.currentState
                                 == Lifecycle.State.RESUMED
                             ) {
                                 navController.popBackStack()
                             }
                         },
-                        //Save Icon, allows users to save their edits and register it in the database once they are done editing
+                        // Save Icon, allows users to save their edits and register it in the database once they are done editing
                         icon = {
                             Icon(
                                 imageVector = ImageVector.vectorResource(id = R.drawable.save),
@@ -176,9 +207,9 @@ fun NoteEditScreen(
                         },
                         // Once clicked, users can save their edits
                         onIconClick = {
-                            //Only allows users to save if at least one of the fields have values.
+                            // Only allows users to save if at least one of the fields have values.
                             if (hasValues()) {
-                                //Updates the notes.
+                                // Updates the notes.
                                 viewModel.updateNote(
                                     Note(
                                         id = note.value.id,
@@ -191,28 +222,31 @@ fun NoteEditScreen(
                                         location = currentLocation.value
                                     )
                                 )
+                                // Once the updates are saved, go back to the previous screen.
+                                // Additional fail-safe method to prevent the user from going back to the wrong previous screen
                                 if (navController.currentBackStackEntry?.lifecycle?.currentState
                                     == Lifecycle.State.RESUMED
                                 ) {
+                                    //Goes back to the previous screen
                                     navController.popBackStack()
                                 }
                             }
                         },
-                        //NavIcon and SaveButton state
+                        // NavIcon and SaveButton state
                         navIconState = navIconState,
                         iconState = saveButtonState,
                     )
                 },
-                //The Bottom Bar is a distinct feature that is only found in the edit page.
-                //It allows users to clear all the TextFields including the Picture
+                // The Bottom Bar
+                // It allows users to clear all the TextFields including the Picture
                 bottomBar = {
-                    //Start of Bottom App Bar
+                    // Start of Bottom App Bar
                     BottomAppBar(
                         modifier = Modifier.fillMaxWidth(),
                         containerColor = MaterialTheme.colorScheme.primary,
                         contentColor = MaterialTheme.colorScheme.onPrimary
                     ){
-                        //Clear function, this allows the users to clear all the TextFields, including the Picture
+                        // Clear function, this allows the users to clear all the TextFields, including the Picture
                         IconButton(onClick = {
                             currentPhotos.value = null
                             currentTitle.value = ""
@@ -223,7 +257,7 @@ fun NoteEditScreen(
                             currentLocation.value = ""
                             saveButtonState.value = hasValues()
                         }) {
-                            //Icon for clear
+                            // Icon for clear
                             Icon(
                                 Icons.Filled.Clear,
                                 contentDescription = "Clear Note",
@@ -235,16 +269,17 @@ fun NoteEditScreen(
                             currentPhotos.value = null
                             saveButtonState.value = hasValues()
                         }) {
-                            //Icon for removing the image. It is in the shape of a camera but crossed out. Intuitive and easy for users to understand.
+                            // Icon for removing the image. It is in the shape of a camera but crossed out. Intuitive and easy for users to understand.
                             Icon(
                                 imageVector = ImageVector.vectorResource(id = R.drawable.remove_picture),
                                 contentDescription = "Remove Image",
                                 tint = MaterialTheme.colorScheme.onPrimary
                             )
                         }
-                        //Allows users to confirm their changes. (It is shown as a tick)
+                        // Allows users to confirm their changes. (It is shown as a tick)
                         IconButton(onClick = {
                             if (hasValues()) {
+                                // If the nose at least one field has values, then update the note.
                                 viewModel.updateNote(
                                     Note(
                                         id = note.value.id,
@@ -257,36 +292,39 @@ fun NoteEditScreen(
                                         location = currentLocation.value
                                     )
                                 )
-                                //Once clicked, and conditions are met (at least one field have values) then go back to the previous screen.
-                                //Save then go back to the previous screen.
+                                // Once clicked, and conditions are met (at least one field have values) then go back to the previous screen.
+                                // Save then go back to the previous screen.
                                 if (navController.currentBackStackEntry?.lifecycle?.currentState
                                     == Lifecycle.State.RESUMED
                                 ) {
+                                    // Goes back to the previous screen
                                     navController.popBackStack()
                                 }
                             }
                         }) {
-                            //Icon for confirming the changes. If no changes are made, just goes back to the previous screen.
+                            // Icon for confirming the changes. If no changes are made, just goes back to the previous screen.
                             Icon(
                                 Icons.Filled.Done,
                                 contentDescription = "Save Note",
                                 tint = MaterialTheme.colorScheme.onPrimary
                             )
                         }
+                        // To allow users to click on the image icon to select a picture from their gallery
                         IconButton(onClick = {
                             getImageRequest.launch(arrayOf("image/*"))
                         }) {
+                            // Image icon
                             Icon(
                                 imageVector = ImageVector.vectorResource(id = R.drawable.image),
                                 contentDescription = "Add Image",
                                 tint = MaterialTheme.colorScheme.onPrimary
                             )
                         }
-                        //Spacer just makes space between elements
+                        // Spacer just makes space between elements
                         Spacer(Modifier.weight(1f, true))
-                        //Allows users to take a picture, and display it to the user.
+                        // Allows users to take a picture, and display it to the user.
                         IconButton(onClick = {
-
+                            requestCameraPermission.launch(android.Manifest.permission.CAMERA)
                         }) {
                             Icon(
                                 imageVector = ImageVector.vectorResource(id = R.drawable.camera),
@@ -296,21 +334,22 @@ fun NoteEditScreen(
                         }
                     }
                 },
-                //Main Content
+                // Main Content
                 content = { innerPadding ->
-                    LazyColumn( //Used LazyColumn to display the elements, similar to recyclerview, but more lightweight and for compose
+                    LazyColumn( // Used LazyColumn to display the elements, similar to recyclerview, but more lightweight and for compose
                         modifier = Modifier
                             .padding(innerPadding)
                             .fillMaxSize()
                     ) {
-                        //Displays the image
+                        //LazyColumn Item 1: Image
+                        // Displays the image
                         item {
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(260.dp)
                             ) {
-                                //If there is a picture associated with the note, then show the picture
+                                // If there is a picture associated with the entry, then show the picture
                                 if (currentPhotos.value != null && currentPhotos.value!!.isNotEmpty()) {
                                     Image(
                                         painter = rememberAsyncImagePainter(
@@ -322,7 +361,7 @@ fun NoteEditScreen(
                                         modifier = Modifier.fillMaxSize(),
                                         contentScale = ContentScale.Crop
                                     )
-                                    //If there is NO picture, then a placeholder will be shown
+                                    // If there is NO picture, then a placeholder will be shown
                                 } else {
                                     Text(
                                         text = "Image placeholder",
@@ -333,7 +372,8 @@ fun NoteEditScreen(
                                 }
                             }
                         }
-                        //Displays the title
+                        // LazyColumn Item 2: Title
+                        // Displays the title
                         item {
                             OutlinedTextField(
                                 value = currentTitle.value,
@@ -341,7 +381,7 @@ fun NoteEditScreen(
                                     .fillMaxWidth()
                                     .padding(top = 5.dp, start = 15.dp, end = 15.dp),
                                 maxLines = 1,
-                                //Changes the value of the Text Field for title and updates the saveButtonState
+                                // Changes the value of the Text Field for title and updates the saveButtonState
                                 onValueChange = { value ->
                                     currentTitle.value = value
                                     if (currentTitle.value != note.value.title) {
@@ -353,7 +393,8 @@ fun NoteEditScreen(
                                 label = { Text("Title") }
                             )
                         }
-                        //Displays the "note" which is a short description for the note that they are creating
+                        // LazyColumn Item 3: Note
+                        // Displays the "note" which is a short description for the note that they are creating
                         item {
                             OutlinedTextField(
                                 value = currentNote.value,
@@ -361,7 +402,7 @@ fun NoteEditScreen(
                                     .fillMaxWidth()
                                     .padding(top = 5.dp, start = 15.dp, end = 15.dp),
                                 maxLines = 1,
-                                //Changes the value of the Text Field for note field and updates the saveButtonState
+                                // Changes the value of the Text Field for note field and updates the saveButtonState
                                 onValueChange = { value ->
                                     currentNote.value = value
                                     if (currentNote.value != note.value.note) {
@@ -373,7 +414,8 @@ fun NoteEditScreen(
                                 label = { Text("Note") },
                             )
                         }
-                        //Displays the description of the note
+                        // LazyColumn Item 4: Description
+                        // Displays the description of the note
                         item {
                             OutlinedTextField(
                                 value = currentDescription.value,
@@ -382,7 +424,7 @@ fun NoteEditScreen(
                                     .height(150.dp)
                                     .padding(top = 5.dp, start = 15.dp, end = 15.dp),
                                 maxLines = 7,
-                                //Changes the value of the Text Field for description field and updates the saveButtonState
+                                // Changes the value of the Text Field for description field and updates the saveButtonState
                                 onValueChange = { value ->
                                     currentDescription.value = value
                                     if (currentDescription.value != note.value.description) {
@@ -394,16 +436,17 @@ fun NoteEditScreen(
                                 label = { Text("Description") },
                             )
                         }
-                        //Displays the time and date of the note. Shown in a row to make the elements side by side.
+                        // LazyColumn Item 5: Time and Date
+                        // Displays the time and date of the note. Shown in a row to make the elements side by side.
                         item {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier.padding(1.dp)
                             ) {
-                                //Displays the time
+                                // Displays the time
                                 OutlinedTextField(
                                     value = currentTime.value,
-                                    //Changes the value of the Text Field for time field and updates the saveButtonState
+                                    // Changes the value of the Text Field for time field and updates the saveButtonState
                                     onValueChange = { value ->
                                         currentTime.value = value
                                         if (currentTime.value != note.value.time) {
@@ -420,10 +463,10 @@ fun NoteEditScreen(
                                 TextButton(onClick = { showTimePickerDialog.value = true }) {
                                     Text("Time")
                                 }
-                                //Displays the date
+                                // Displays the date
                                 OutlinedTextField(
                                     value = currentDate.value,
-                                    //Changes the value of the Text Field for date field and updates the saveButtonState
+                                    // Changes the value of the Text Field for date field and updates the saveButtonState
                                     onValueChange = { value ->
                                         currentDate.value = value
                                         if (currentDate.value != note.value.date) {
@@ -440,11 +483,12 @@ fun NoteEditScreen(
                                 }
                             }
                         }
-                        //Displays the location of the note
+                        // LazyColumn Item 6: Location
+                        // Displays the location of the note
                         item {
                             OutlinedTextField(
                                 value = currentLocation.value,
-                                //Changes the value of the Text Field for location field and updates the saveButtonState
+                                // Changes the value of the Text Field for location field and updates the saveButtonState
                                 onValueChange = { value ->
                                     currentLocation.value = value
                                     if (currentLocation.value != note.value.location) {
@@ -460,8 +504,7 @@ fun NoteEditScreen(
                             )
                         }
                     }
-                    //Show time picker component to select time and then update the time
-
+                    // Show time picker component to select time and then update the time
                     if (showTimePickerDialog.value) {
                         TimePickerDialog(
                             title = "Select Time",
@@ -475,7 +518,7 @@ fun NoteEditScreen(
                             }
                         )
                     }
-                    //Show the date picker component to select date and then update the date
+                    // Show the date picker component to select date and then update the date
                     if (showDatePickerDialog.value) {
                         DatePickerDialog(
                             title = "Select Date",

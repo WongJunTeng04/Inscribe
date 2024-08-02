@@ -4,6 +4,7 @@ package com.example.journalapp
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -22,6 +23,7 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var viewModel: NotesViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProvider(this, NoteViewModelFactory(JournalNotesApp.getDao())).get(
             NotesViewModel::class.java)
