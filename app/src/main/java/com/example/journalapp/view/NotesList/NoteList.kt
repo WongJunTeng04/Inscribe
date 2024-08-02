@@ -38,7 +38,6 @@ import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -73,6 +72,7 @@ import coil.request.ImageRequest
 import com.example.journalapp.Constants
 import com.example.journalapp.R
 import com.example.journalapp.model.Note
+import com.example.journalapp.view.SharedComponents.EmptyNote
 import com.example.journalapp.view.SharedComponents.NotesFab
 import com.example.journalapp.view.theme.AppTheme
 import com.example.journalapp.viewModel.NotesViewModel
@@ -192,6 +192,12 @@ fun NoteListScreen(
                         //Searches the notes
                         SearchBar(query = noteQuery, isSearchBarVisible = isSearchBarVisible)
                     }
+
+                    // Show EmptyNote when there are no notes
+                    if (notes.value.isNullOrEmpty()) {
+                        EmptyNote()
+                    }
+
                     //Displays the notes
                     notes.value?.let {
                         if (it.isNotEmpty()) {

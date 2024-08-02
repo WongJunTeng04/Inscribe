@@ -3,11 +3,16 @@ package com.example.journalapp.view.SharedComponents
 //Imports
 import android.widget.DatePicker
 import android.widget.TimePicker
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -24,11 +29,15 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.example.journalapp.R
 import java.util.Calendar
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -276,6 +285,45 @@ fun NotesFab(contentDescription: String, icon: Int, action: () -> Unit) {
             imageVector = ImageVector.vectorResource(id = icon),
             contentDescription = contentDescription,
             tint = MaterialTheme.colorScheme.onPrimary
+        )
+    }
+}
+
+//Composable displays where there is no notes
+@Composable
+fun EmptyNote() {
+    // Create a column to center the image and text
+    Column(
+        modifier = Modifier
+            .fillMaxSize(), // Fill the available screen size
+        verticalArrangement = Arrangement.Center, // Center content vertically
+        horizontalAlignment = Alignment.CenterHorizontally // Center content horizontally
+    ) {
+        // Display an image
+        Image(
+            painter = painterResource(id = R.drawable.pencil), // Replace with your image resource
+            contentDescription = "No Notes",
+            modifier = Modifier.size(300.dp) // Set the size of the image
+        )
+        Spacer(modifier = Modifier.height(16.dp)) // Add space between image and text
+
+        // Display the first line of text
+        Text(
+            text = "No notes found",
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center,
+            fontSize = 30.sp
+        )
+        Spacer(modifier = Modifier.height(8.dp)) // Add space between texts
+
+        // Display the second line of text
+        Text(
+            text = "Tap + to create a journal entry",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center,
+            fontSize = 20.sp
         )
     }
 }

@@ -273,15 +273,24 @@ fun NoteEditScreen(
                                 tint = MaterialTheme.colorScheme.onPrimary
                             )
                         }
-                        //Spacer just makes space between elements
-                        Spacer(Modifier.weight(1f, true))
-                        //Allows users to take a picture, and display it to the user.
                         IconButton(onClick = {
                             getImageRequest.launch(arrayOf("image/*"))
                         }) {
                             Icon(
                                 imageVector = ImageVector.vectorResource(id = R.drawable.image),
                                 contentDescription = "Add Image",
+                                tint = MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
+                        //Spacer just makes space between elements
+                        Spacer(Modifier.weight(1f, true))
+                        //Allows users to take a picture, and display it to the user.
+                        IconButton(onClick = {
+
+                        }) {
+                            Icon(
+                                imageVector = ImageVector.vectorResource(id = R.drawable.camera),
+                                contentDescription = "Take Picture",
                                 tint = MaterialTheme.colorScheme.onPrimary
                             )
                         }

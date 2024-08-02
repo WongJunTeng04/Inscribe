@@ -39,8 +39,8 @@ import com.example.journalapp.Constants
 import com.example.journalapp.Constants.noteDetailPlaceHolder
 import com.example.journalapp.R
 import com.example.journalapp.view.SharedComponents.GenericAppBar
-import com.example.journalapp.viewModel.NotesViewModel
 import com.example.journalapp.view.theme.AppTheme
+import com.example.journalapp.viewModel.NotesViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
