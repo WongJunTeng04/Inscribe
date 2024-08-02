@@ -166,7 +166,7 @@ fun CreateNoteScreen(
                         action = {
                             getImageRequest.launch(arrayOf("image/*"))
                         },
-                        icon = R.drawable.camera,
+                        icon = R.drawable.image,
                     )
                 },
                 //Display of the elements such as Image, Title, Note, Description, Time, Date, Location
