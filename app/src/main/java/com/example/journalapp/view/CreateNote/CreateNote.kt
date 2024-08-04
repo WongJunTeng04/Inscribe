@@ -105,7 +105,7 @@ fun CreateNoteScreen(
     val navIconState = createNoteViewModel.navIconState
     val saveButtonState = createNoteViewModel.saveButtonState
 
-    // Get the image from the gallery using the Coil library
+    // Get the image from the gallery using the Coil library. Image request handler
     val getImageRequest = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument(),
         onResult = { uri ->
@@ -116,7 +116,7 @@ fun CreateNoteScreen(
         }
     )
 
-    // Launch camera to take a picture
+    // Launch camera to take a picture. Camera picture request
     val context = LocalContext.current
     val takePictureRequest = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicturePreview(),
@@ -143,7 +143,7 @@ fun CreateNoteScreen(
         }
     )
 
-    // Function to check if any field has value, used for logic of saving the note
+    // Function to check if any field has value, used for logic of saving the note (to enable saving)
     fun hasValues(): Boolean {
         return currentPhotos.value.isNotBlank() ||
                 currentTitle.value.isNotBlank() ||

@@ -1,6 +1,5 @@
 package com.example.journalapp.viewModel
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -16,11 +15,7 @@ class NotesViewModel(
 ) : ViewModel() {
 
     // LiveData to observe the list of notes
-    val notes: LiveData<List<Note>> = db.getNotes().also {
-        it.observeForever { noteList ->
-            Log.d("NotesViewModel", "Notes retrieved: ${noteList.size}")
-        }
-    }
+    val notes: LiveData<List<Note>> = db.getNotes()
 
     // Function to delete a note
     fun deleteNote(note: Note) {
@@ -66,8 +61,6 @@ class NotesViewModel(
     suspend fun getNote(id: Int): Note? {
         return db.getNoteById(id)
     }
-
-
 }
 
 // Factory class to create an instance of NotesViewModel

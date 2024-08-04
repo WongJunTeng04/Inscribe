@@ -332,7 +332,7 @@ fun NotesList(
                 )
             }
             //Displays the notes
-            itemsIndexed(notesForHeader, key = { index, note -> note.id ?: index }) { index, note ->
+            itemsIndexed(notesForHeader, key = { index, note -> note.id ?: index }) { _, note ->
                 NoteListItem(
                     note = note,
                     openDialog = openDialog,
@@ -565,50 +565,71 @@ fun ToolTip(toolTipShow: MutableState<Boolean>) {
                         .background(color = Color.White, shape = MaterialTheme.shapes.medium)
                         .padding(10.dp)
                 ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(
-                            text = "TIPS OF INSCRIBE",
-                            style = MaterialTheme.typography.headlineLarge
-                        )
-                        HorizontalDivider(modifier = Modifier.padding(10.dp))
-                        Spacer(modifier = Modifier.height(15.dp))
-                        Text(
-                            text = "Welcome to Inscribe"
-                        )
-                        Spacer(modifier = Modifier.height(30.dp))
-                        Text(
-                            text = "Inscribe is your daily journal, where you can store all your thoughts and experiences."
-                        )
-                        Spacer(modifier = Modifier.height(15.dp))
-                        Text(
-                            text = "Tips:"
-                        )
-                        Spacer(modifier = Modifier.height(15.dp))
-                        Text(
-                            text = "1) Press once on a note to view the details of the note."
-                        )
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Text(
-                            text = "2) Long press/click on a note to delete the note."
-                        )
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Text(
-                            text = "3) Press the FAB, which is the, + icon, to create a note."
-                        )
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Text(
-                            text = "4) Press on the Hamburger menu on the note to view more details."
-                        )
-                        Spacer(modifier = Modifier.height(20.dp))
-                        Text(
-                            text = "That's it! Happy Journaling Everyone!"
-                        )
-                        TextButton(onClick = { toolTipShow.value = false }) {
+                    LazyColumn(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    ) {
+                        item {
                             Text(
-                                text = "Dismiss",
-                                modifier = Modifier.padding(top = 30.dp),
-                                fontSize = 20.sp
+                                text = "TIPS OF INSCRIBE",
+                                style = MaterialTheme.typography.headlineLarge
                             )
+                            HorizontalDivider(modifier = Modifier.padding(10.dp))
+                            Spacer(modifier = Modifier.height(15.dp))
+                        }
+                        item {
+                            Text(
+                                text = "Welcome to Inscribe"
+                            )
+                            Spacer(modifier = Modifier.height(30.dp))
+                        }
+                        item {
+                            Text(
+                                text = "Inscribe is your daily journal, where you can store all your thoughts and experiences."
+                            )
+                            Spacer(modifier = Modifier.height(15.dp))
+                        }
+                        item {
+                            Text(
+                                text = "Tips:"
+                            )
+                            Spacer(modifier = Modifier.height(15.dp))
+                        }
+                        item {
+                            Text(
+                                text = "1) Press once on a note to view the details of the note."
+                            )
+                            Spacer(modifier = Modifier.height(10.dp))
+                        }
+                        item {
+                            Text(
+                                text = "2) Long press/click on a note to delete the note."
+                            )
+                            Spacer(modifier = Modifier.height(10.dp))
+                        }
+                        item {
+                            Text(
+                                text = "3) Press the FAB, which is the + icon, to create a note."
+                            )
+                            Spacer(modifier = Modifier.height(10.dp))
+                        }
+                        item {
+                            Text(
+                                text = "4) Press on the Hamburger menu on the note to view more details."
+                            )
+                            Spacer(modifier = Modifier.height(20.dp))
+                        }
+                        item {
+                            Text(
+                                text = "That's it! Happy Journaling Everyone!"
+                            )
+                            TextButton(onClick = { toolTipShow.value = false }) {
+                                Text(
+                                    text = "Dismiss",
+                                    modifier = Modifier.padding(top = 30.dp),
+                                    fontSize = 20.sp
+                                )
+                            }
                         }
                     }
                 }
