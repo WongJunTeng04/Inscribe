@@ -1,10 +1,9 @@
 ![header](https://github.com/user-attachments/assets/dcbb4aa3-3ab8-49d4-9a65-3c9219289572)
 
-# Inscribe Journal App
+# Inscribe Journal App- Capture Your Thoughts, Craft Your Story
 ## _Journal App_
 
-🎊 Welcome to Inscribre! Inscribe is a multi-purpose app that allows its users
-to use it as a journal, notes app, etc.
+🎊 Welcome to Inscribre! Inscribe is a multi-purpose app that allows its users to use it as a journal, notes app, etc.
 
 ## 📚 Features
 
@@ -17,6 +16,21 @@ to use it as a journal, notes app, etc.
 > that can be used in anyway the user wants. Although it
 > it is not a refined app yet, it functions as a complete
 > system.
+
+## 💿 Installation
+
+1. Clone the repository: `git clone https://github.com/WongJunTeng04/Inscribe.git`
+2. Open the project in Android Studio
+3. Build the project and run it on an Android device or emulator
+
+## 📝 Usage
+
+1. **Starting The App**: Launch the app, and it will display the app's starting page.
+2. **Create Entry**: From the home screen, select the "+" FAB button to start creating an entry.
+3. **Edit Entry**: After creating the entry, click on the entry to edit it.
+4. **View Entry (Details Page)**: Go back to the Home page, and click on the entry to view the entry.
+5. **Delete Entry**:  Press on the 🗑️ icon at the top, to delete all entries. To delete specific entries, hold on the entry to delete.
+6. **Expand and Collapse Entry**: Expand the view on specific entries you want to view, and collapse it once done to keep things neat and tidy.
 
 ## 👨🏻‍💻 Tech
 
@@ -48,3 +62,15 @@ to use it as a journal, notes app, etc.
     <td><img width="320" alt="Edit Page" src="https://github.com/user-attachments/assets/b7ce3b69-b723-4283-bd6b-20aff51696bd"></td>
 </tr>
 </table>
+
+## 🏘️ Contributing
+
+Contributions are welcome! You have free reign over what you want to contribute to the code!
+
+## 🗒️ License
+
+This project is licensed under the [MIT License](MIT-LICENSE.txt). It is open-sourced so contributions and alterations to code is up to you. Go have fun! Credit me though :D
+
+## ℹ️ Contact Information
+
+For more information, please contact [Wong Jun Teng](mailto:junteng.wong01@gmail.com).
