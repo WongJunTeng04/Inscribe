@@ -1,3 +1,5 @@
+![header](https://github.com/user-attachments/assets/dcbb4aa3-3ab8-49d4-9a65-3c9219289572)
+
 # Inscribe Journal App
 ## _Journal App_
 
@@ -20,31 +22,29 @@ to use it as a journal, notes app, etc.
 
 - [Kotlin] - Kotlin Programming Language
 - [Android Studio] - Android Studio IDE
+- [Android Studio Version] - Android Studio Koala | 2024.1.1 Patch 1
 
 ## 📸 Pictures 
 
 <table>
   <tr>
-    Home screen, Tips screen, Search
-    <td><img width="334" alt="Main Screen" src="https://github.com/user-attachments/assets/32ac037c-f45a-4133-baef-7124bbf0bd76"></td>
-    <td><img width="334" alt="Tips Page" src="https://github.com/user-attachments/assets/31c45c58-5104-415b-beda-4a7f844cea59"></td>
-    <td><img width="334" alt="Search" src="https://github.com/user-attachments/assets/4994ed48-612f-4c5b-a50e-477ff17ea3c7"></td>
+	  <th>Home Screen, Tips Screen, Search</th>
+    <td><img width="320" alt="Home (Empty)" src="https://github.com/user-attachments/assets/23be3dd5-eba1-4d93-bd76-a8d919f13ca2"></td>
+    <td><img width="320" alt="Tips Page" src="https://github.com/user-attachments/assets/9047653b-1b19-4c62-a804-ec455e340065"></td>
+    <td><img width="320" alt="Search" src="https://github.com/user-attachments/assets/2ada4148-4862-47a3-88a6-1148e83aafdc"></td>
   </tr>
   <tr>
-    Creation screen
-    <td><img width="334" alt="Create Entry" src="https://github.com/user-attachments/assets/de0664b0-32af-4b7b-9b6b-c2941c49a4fc"></td>
-    <td><img width="334" alt="Time Picker" src="https://github.com/user-attachments/assets/a9ad8e7a-1bd1-4b77-82bb-9f726824117b"></td>
-    <td><img width="334" alt="Date Picker" src="https://github.com/user-attachments/assets/8d8f54e6-89ff-4641-ba4d-b5406496ae39"></td>
-    <td><img width="334" alt="Fields filled" src="https://github.com/user-attachments/assets/bb052ebf-ff43-490f-8b25-8ffae2bbf262"></td>
+	  <th>Home with notes, Search function, Delete function</th>
+    <td><img width="320" alt="Entry minimized" src="https://github.com/user-attachments/assets/2afdefcc-ce45-44cc-9b52-a8faa1c6ecf8"></td>
+    <td><img width="320" alt="Entry maximised" src="https://github.com/user-attachments/assets/71f20c00-8561-4cd7-966f-fc683d033f9b"></td>
+    <td><img width="320" alt="Search For Entry" src="https://github.com/user-attachments/assets/878fa405-c239-450c-a973-f52f9982c9cb"></td>
+    <td><img width="320" alt="Delete Entry" src="https://github.com/user-attachments/assets/7e4f9fb9-6bc0-4da2-b6ef-e1cad47074ef"></td>
   </tr>
-	<tr>
-    Home screen with entry: Collapsed and Expanded View
-    <td><img width="334" alt="Minimized View For Entry" src="https://github.com/user-attachments/assets/31d42074-e6bd-4a23-a036-4a3e4a2a387e"></td>
-    <td><img width="334" alt="Expaneded View For Entry" src="https://github.com/user-attachments/assets/7eddd9e7-e497-4e4c-9550-513d3dff5e10"></td>
-  </tr>
-  <tr>
-    Details and Edit screen
-    <td><img width="334" alt="Details Page" src="https://github.com/user-attachments/assets/45eb0591-f730-4177-9b8f-fd34b982ad3d"></td>
-    <td><img width="334" alt="Edit Page" src="https://github.com/user-attachments/assets/ce626028-2960-4ffd-adad-53a4b3c52b13"></td>
-  </tr>
+<tr>
+	<th>Create Entry, Details Screen, Edit Screen</th>
+    <td><img width="320" alt="Create Entry" src="https://github.com/user-attachments/assets/8daa7a4d-ea39-4d70-a74c-fa9fba56667b"></td>
+    <td><img width="320" alt="Fields Filled" src="https://github.com/user-attachments/assets/cc4f2423-236e-4fc5-9453-8bc784167304"></td>
+    <td><img width="320" alt="Details Page" src="https://github.com/user-attachments/assets/420c4346-6d7c-4484-a999-dc77bb5fe829"></td>
+    <td><img width="320" alt="Edit Page" src="https://github.com/user-attachments/assets/b7ce3b69-b723-4283-bd6b-20aff51696bd"></td>
+</tr>
 </table>
